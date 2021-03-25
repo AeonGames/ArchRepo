@@ -1,0 +1,168 @@
+# Maintainer: Rodrigo Hernandez <kwizatz@aeongames.com>
+
+SRCEXT='.src.tar.zst'
+
+_realname=v8
+pkgbase=${_realname}
+pkgname="${_realname}"
+pkgver=8.8.278.14
+pkgrel=1
+pkgdesc="Fast and modern Javascript engine"
+arch=('any')
+url="https://v8.dev"
+license=("BSD")
+makedepends=("git" "python" "gn" "ninja")
+depends=("zlib"
+         "icu")
+source=("bare-clones/v8-${pkgver}::git+https://chromium.googlesource.com/v8/v8.git#tag=${pkgver}"
+        "bare-clones/build::git+https://chromium.googlesource.com/chromium/src/build.git#commit=775492b7a5bd50d29ad357f6216e376b37955f5c"
+        "bare-clones/zlib::git+https://chromium.googlesource.com/chromium/src/third_party/zlib.git#commit=156be8c52f80cde343088b4a69a80579101b6e67"
+        "bare-clones/common::git+https://chromium.googlesource.com/chromium/src/base/trace_event/common.git#commit=dab187b372fc17e51f5b9fad8201813d0aed5129"
+        "bare-clones/googletest::git+https://chromium.googlesource.com/external/github.com/google/googletest.git#commit=10b1902d893ea8cc43c69541d70868f91af3646b"
+        "bare-clones/jinja2::git+https://chromium.googlesource.com/chromium/src/third_party/jinja2.git#commit=b41863e42637544c2941b574c7877d3e1f663e25"
+        "bare-clones/markupsafe::git+https://chromium.googlesource.com/chromium/src/third_party/markupsafe.git#commit=8f45f5cfa0009d2a70589bcda0349b8cb2b72783"
+        "0000-add-mingw-main-code-changes.patch"
+        "0001-add-mingw-toolchain.patch"
+        "icu.gn"
+        "zlib.gn"
+        "v8_libbase.pc"
+        "v8_libplatform.pc"
+        "v8.pc")
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            '9de4957ab1dbd5ce1ed82e8c9bd50170fa7a6875965ac91e9e0afcc7be43729a'
+            '01f807e53ea45db0ad44ded86ca949923bd39cce5fe00721f52dc0d471610b51'
+            'c10169e7a34e212b1a2bf0eaf45131485719f32a7c34d9a666b692f05a2aa830'
+            'b99874ea904724911528a5530c14f3051c358805bd36df9d205df31458ebf8b9'
+            'ae78efe6b297e7ebc19bbe8e02f4523e2b1678a92b8ab0d6c1747a1fbcec0d33'
+            '51c7c27d81218e82f42f9978bc10406e76b867227ab5a1ceb8d0f8140c7bcfe7'
+            '4df84b5fc733f2dceeaff8b1daccf6b5e48d662ac4bbf6705b7e94fb74f98c1d')
+
+prepare() {
+  echo "Patching v8 source"
+  cd "${srcdir}"/v8-${pkgver}
+  git apply ${srcdir}/0000-add-mingw-main-code-changes.patch
+
+  echo "Patching build directory"
+  cd "${srcdir}"/build
+  git apply ${srcdir}/0001-add-mingw-toolchain.patch
+  python "${srcdir}"/build/util/lastchange.py -o "${srcdir}"/build/util/LASTCHANGE
+  rm -rf "${srcdir}"/v8-${pkgver}/build
+  ln -sf "${srcdir}"/build "${srcdir}"/v8-${pkgver}
+  echo "checkout_google_benchmark = false" > "${srcdir}"/v8-${pkgver}/build/config/gclient_args.gni
+
+  echo "Patching zlib directory"
+  mkdir -p "${srcdir}"/v8-${pkgver}/third_party/zlib
+  ln -sf "${srcdir}"/zlib.gn "${srcdir}"/v8-${pkgver}/third_party/zlib/BUILD.gn
+  rm -rf "${srcdir}"/v8-${pkgver}/third_party/zlib/google
+  ln -sf "${srcdir}"/zlib/google "${srcdir}"/v8-${pkgver}/third_party/zlib
+  
+  echo "Patching icu directory"
+  mkdir -p "${srcdir}"/v8-${pkgver}/third_party/icu
+  ln -sf "${srcdir}"/icu.gn "${srcdir}"/v8-${pkgver}/third_party/icu/BUILD.gn
+
+  echo "Soft linking extra repos"
+  mkdir -p ${srcdir}/v8-${pkgver}/base/trace_event
+  rm -rf ${srcdir}/v8-${pkgver}/base/trace_event/common
+  ln -sf "${srcdir}"/common ${srcdir}/v8-${pkgver}/base/trace_event
+  rm -rf "${srcdir}"/v8-${pkgver}/third_party/googletest/src
+  ln -sf "${srcdir}"/googletest "${srcdir}"/v8-${pkgver}/third_party/googletest/src
+  rm -rf "${srcdir}"/v8-${pkgver}/third_party/jinja2
+  ln -sf "${srcdir}"/jinja2 "${srcdir}"/v8-${pkgver}/third_party
+  rm -rf "${srcdir}"/v8-${pkgver}/third_party/markupsafe
+  ln -sf "${srcdir}"/markupsafe "${srcdir}"/v8-${pkgver}/third_party
+
+  _cflags=""
+  case ${CARCH} in
+    x86_64)
+      _cflags="$_cflags -DV8_COMPRESS_POINTERS -DV8_31BIT_SMIS_ON_64BIT_ARCH"
+    ;;
+  esac
+
+  sed "s/@VERSION@/$pkgver/g" -i "$srcdir/v8_libbase.pc"
+  sed "s/@CFLAGS@/$_cflags/g" -i "$srcdir/v8_libbase.pc"
+
+  sed "s/@VERSION@/$pkgver/g" -i "$srcdir/v8_libplatform.pc"
+  sed "s/@CFLAGS@/$_cflags/g" -i "$srcdir/v8_libplatform.pc"
+
+  sed "s/@VERSION@/$pkgver/g" -i "$srcdir/v8.pc"
+  sed "s/@CFLAGS@/$_cflags/g" -i "$srcdir/v8.pc"
+}
+
+build() {
+  local BUILDTYPE=Release
+  if check_option "debug" "y"; then
+    BUILDTYPE="Debug"
+  fi
+
+  case ${CARCH} in
+    i686)
+      _arch=x86
+    ;;
+    x86_64)
+      _arch=x64
+    ;;
+  esac
+  case ${BUILDTYPE} in
+    Release)
+      _is_debug=false
+    ;;
+    Debug)
+      _is_debug=true
+    ;;
+  esac
+
+  export DEPOT_TOOLS_WIN_TOOLCHAIN=0
+
+  cd "${srcdir}"/v8-${pkgver}
+  gn gen "${PWD}/out/${BUILDTYPE}-${CARCH}" --args="is_debug=${_is_debug} is_component_build=true target_cpu=\"${_arch}\" is_clang=false use_custom_libcxx=false v8_enable_verify_heap=false icu_use_data_file=false enable_iterator_debugging=${_is_debug} v8_use_external_startup_data=true use_sysroot=false"
+  ninja -C "${PWD}/out/${BUILDTYPE}-${CARCH}" :v8_libbase :v8_libplatform :v8 :d8 :torque :torque-language-server :mksnapshot
+}
+
+check() {
+  cd "${_realname}-${pkgver}"
+  local BUILDTYPE=Release
+  if check_option "debug" "y"; then
+    BUILDTYPE="Debug"
+  fi
+}
+
+package() {
+  cd "${_realname}-${pkgver}"
+  local BUILDTYPE=Release
+  if check_option "debug" "y"; then
+    BUILDTYPE="Debug"
+  fi
+
+  install -d "$pkgdir"/usr/bin
+  install -Dm755 out/${BUILDTYPE}-${CARCH}/d8 "$pkgdir"/usr/bin/d8
+  install -Dm755 out/${BUILDTYPE}-${CARCH}/torque "$pkgdir"/usr/bin/torque
+  install -Dm755 out/${BUILDTYPE}-${CARCH}/torque-language-server "$pkgdir"/usr/bin/torque-language-server
+  install -Dm755 out/${BUILDTYPE}-${CARCH}/mksnapshot "$pkgdir"/usr/bin/mksnapshot
+  install -Dm644 out/${BUILDTYPE}-${CARCH}/snapshot_blob.bin "$pkgdir"/usr/bin/snapshot_blob.bin
+
+  install -d "$pkgdir"/usr/lib
+  install -Dm755 out/${BUILDTYPE}-${CARCH}/*.so "$pkgdir"/usr/lib/
+
+  install -d "$pkgdir"/usr/include
+  install -Dm644 include/*.h "$pkgdir"/usr/include
+  install -d "$pkgdir"/usr/include/cppgc
+  install -Dm644 include/cppgc/*.h "$pkgdir"/usr/include/cppgc
+  install -d "$pkgdir"/usr/include/cppgc/internal
+  install -Dm644 include/cppgc/internal/*.h "$pkgdir"/usr/include/cppgc/internal
+  install -d "$pkgdir"/usr/include/libplatform
+  install -Dm644 include/libplatform/*.h "$pkgdir"/usr/include/libplatform
+
+  install -d "$pkgdir"/usr/lib/pkgconfig
+  install -m644 "$srcdir/v8_libbase.pc" "$pkgdir"/usr/lib/pkgconfig/
+  install -m644 "$srcdir/v8_libplatform.pc" "$pkgdir"/usr/lib/pkgconfig/
+  install -m644 "$srcdir/v8.pc" "$pkgdir"/usr/lib/pkgconfig/
+
+  install -d "$pkgdir"/usr/share/licenses/v8
+  install -m644 LICENSE* "$pkgdir"/usr/share/licenses/v8
+}

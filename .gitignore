@@ -1,0 +1,5 @@
+src
+bare-clones
+pkg
+
+*.tar.zst
