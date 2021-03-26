@@ -1,0 +1,9 @@
+#!/bin/bash
+git show | grep "\[deploy\]"
+if [ $? -eq 0 ]
+then
+  export DEPLOY=YES
+else
+  export DEPLOY=NO
+fi
+echo Deploying a release: $DEPLOY

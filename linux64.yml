@@ -1,0 +1,49 @@
+version: 'archrepo-{branch}-{build}'
+branches:
+  only:
+  - main
+image: Ubuntu2004
+before_build:
+- sh: >-
+    . deploy
+build_script:
+- sh: >-
+    docker run -d --privileged -v /tmp:/tmp -v ${APPVEYOR_BUILD_FOLDER}:/build -h manjaro --name manjaro manjarolinux/base /usr/lib/systemd/systemd
+
+    docker exec manjaro bash -c "pacman -Sy"
+
+    docker exec manjaro bash -c "pacman --noconfirm -S base-devel gn ninja"
+
+    docker exec manjaro bash -c "useradd -U -m -s /bin/bash builder"
+
+    docker exec manjaro bash -c "chown -R builder:builder /build"
+
+    docker exec manjaro bash -c "ls /build"
+
+    docker exec manjaro bash -c "ls /build/v8"
+
+    docker exec manjaro bash -c "cd /build/v8; sudo -u builder makepkg"
+
+    docker exec manjaro bash -c "cd /build/v8; sudo -u builder repo-add aeongames.db.tar.xz v8-8.8.278.14-1-any.pkg.tar.zst"
+
+    docker stop manjaro
+
+    docker container prune -f
+after_build:
+- sh: >-
+    echo 'DONE'
+artifacts:
+- path: ${APPVEYOR_BUILD_FOLDER}/v8/v8-8.8.278.14-1-any.pkg.tar.zst
+  name: v8
+- path: ${APPVEYOR_BUILD_FOLDER}/v8/aeongames.files.tar.xz
+  name: files
+- path: ${APPVEYOR_BUILD_FOLDER}/v8/aeongames.db.tar.xz
+  name: db
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: EW1TkwxBon7bfGf3JnK6SI3dcH2RLAaXRsLlJ5IJITdbDr1zCHFo6U2KuQEhDIq7
+  artifact: v8,files,db
+  on:
+    branch: main
+    DEPLOY: YES
