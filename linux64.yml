@@ -12,7 +12,7 @@ build_script:
 
     docker exec manjaro bash -c "pacman -Sy"
 
-    docker exec manjaro bash -c "pacman --noconfirm -S fakeroot sudo binutils gcc gn ninja"
+    docker exec manjaro bash -c "pacman --noconfirm -S pkg-config fakeroot sudo binutils gcc python gn ninja zlib icu"
 
     docker exec manjaro bash -c "useradd -U -m -s /bin/bash builder"
 
