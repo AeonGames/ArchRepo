@@ -46,7 +46,7 @@ sha256sums=('SKIP'
 prepare() {
   echo "Patching v8 source"
   cd "${srcdir}"/v8-${pkgver}
-  git apply ${srcdir}/0000-add-mingw-main-code-changes.patch
+  patch -p1 < ${srcdir}/0000-add-mingw-main-code-changes.patch
 
   echo "Patching build directory"
   cd "${srcdir}"/build
