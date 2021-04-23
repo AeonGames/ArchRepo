@@ -11,7 +11,7 @@ pkgdesc="Fast and modern Javascript engine"
 arch=('any')
 url="https://v8.dev"
 license=("BSD")
-makedepends=("git" "python" "gn" "ninja")
+makedepends=("git" "python" "gn" "ninja" "patch")
 depends=("zlib"
          "icu")
 source=("https://github.com/v8/v8/archive/refs/tags/${pkgver}.zip"
