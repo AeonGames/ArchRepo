@@ -1,0 +1,22 @@
+dist: focal
+language: cpp
+services:
+  - docker
+script:
+  - docker run -d --privileged -v /tmp:/tmp -v ${PWD}:/build -h manjaro --name manjaro manjarolinux/base /usr/lib/systemd/systemd
+
+  - docker exec manjaro bash -c "pacman -Sy"
+
+  - docker exec manjaro bash -c "pacman --noconfirm -S pkg-config fakeroot sudo binutils gcc python gn ninja zlib icu"
+
+  - docker exec manjaro bash -c "useradd -U -m -s /bin/bash builder"
+
+  - docker exec manjaro bash -c "chown -R builder:builder /build"
+
+  - docker exec manjaro bash -c "cd /build/v8; sudo -u builder makepkg"
+
+  - docker exec manjaro bash -c "cd /build/v8; sudo -u builder repo-add aeongames.db.tar.xz v8-8.8.278.14-1-any.pkg.tar.zst"
+
+  - docker stop manjaro
+
+  - docker container prune -f
