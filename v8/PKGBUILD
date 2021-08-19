@@ -5,7 +5,7 @@ SRCEXT='.src.tar.zst'
 _realname=v8
 pkgbase=${_realname}
 pkgname="${_realname}"
-pkgver=8.8.278.14
+pkgver=9.1.269.39
 pkgrel=1
 pkgdesc="Fast and modern Javascript engine"
 arch=('any')
@@ -15,12 +15,13 @@ makedepends=("git" "python" "gn" "ninja" "patch")
 depends=("zlib"
          "icu")
 source=("https://github.com/v8/v8/archive/refs/tags/${pkgver}.zip"
-        "bare-clones/build::git+https://chromium.googlesource.com/chromium/src/build.git#commit=775492b7a5bd50d29ad357f6216e376b37955f5c"
+        "bare-clones/build::git+https://chromium.googlesource.com/chromium/src/build.git#commit=fd86d60f33cbc794537c4da2ef7e298d7f81138e"
         "bare-clones/zlib::git+https://chromium.googlesource.com/chromium/src/third_party/zlib.git#commit=156be8c52f80cde343088b4a69a80579101b6e67"
         "bare-clones/common::git+https://chromium.googlesource.com/chromium/src/base/trace_event/common.git#commit=dab187b372fc17e51f5b9fad8201813d0aed5129"
         "bare-clones/googletest::git+https://chromium.googlesource.com/external/github.com/google/googletest.git#commit=10b1902d893ea8cc43c69541d70868f91af3646b"
         "bare-clones/jinja2::git+https://chromium.googlesource.com/chromium/src/third_party/jinja2.git#commit=b41863e42637544c2941b574c7877d3e1f663e25"
         "bare-clones/markupsafe::git+https://chromium.googlesource.com/chromium/src/third_party/markupsafe.git#commit=8f45f5cfa0009d2a70589bcda0349b8cb2b72783"
+        "bare-clones/clang::git+https://chromium.googlesource.com/chromium/src/tools/clang.git#commit=ba668f13d135f1d01faf9b03c9a05f5877ac3f51"
         "0000-add-mingw-main-code-changes.patch"
         "0001-add-mingw-toolchain.patch"
         "icu.gn"
@@ -28,15 +29,16 @@ source=("https://github.com/v8/v8/archive/refs/tags/${pkgver}.zip"
         "v8_libbase.pc"
         "v8_libplatform.pc"
         "v8.pc")
-sha256sums=('SKIP'
+sha256sums=('3a56c32da93f4007a72093fbdeec0046ed4625021613600df896fe315bf80ddb'
             'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
-            '9de4957ab1dbd5ce1ed82e8c9bd50170fa7a6875965ac91e9e0afcc7be43729a'
-            '01f807e53ea45db0ad44ded86ca949923bd39cce5fe00721f52dc0d471610b51'
+            'SKIP'
+            '99bfcd9fa06f4421f7312a7e054cc20fcb18769d4717b002f441323d2bfc1121'
+            '63f35c12168fcb5f025db2cb3a4bc693cb4546ce561dc95e45d10c1579daf786'
             'c10169e7a34e212b1a2bf0eaf45131485719f32a7c34d9a666b692f05a2aa830'
             'b99874ea904724911528a5530c14f3051c358805bd36df9d205df31458ebf8b9'
             'ae78efe6b297e7ebc19bbe8e02f4523e2b1678a92b8ab0d6c1747a1fbcec0d33'
