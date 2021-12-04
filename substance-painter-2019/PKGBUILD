@@ -1,0 +1,27 @@
+# Maintainer: kwizatz <kwizatz at aeongames.com>
+
+pkgname=substance-painter-2019
+pkgver=2019.2.3
+pkgrel=1
+_build=3402
+pkgdesc="3D painting software allowing you to texture, render and share your work."
+arch=('x86_64')
+url='https://www.allegorithmic.com/products/substance-painter'
+license=('custom')
+depends=('fontconfig' 'gcc-libs-multilib' 'glu' 'hicolor-icon-theme' 'libtiff4')
+options=('!strip') # PNG assets here should be left untouched!
+source=("https://download.allegorithmic.com/substance-painter/2019.x/Substance_Painter-${pkgver}-${_build}-linux-x64-standard-full.rpm")
+
+sha256sums=('4e810fdfb2a2730a441c51d38e544228c627f8a1af7aa6b325f4ae2cc3dc8749')
+
+validpgpkeys=()
+
+package() {
+  install -Dm644 -t "${pkgdir}/usr/share/applications" "${srcdir}/opt/Allegorithmic/Substance_Painter/resources/allegorithmic-Substance_Painter.desktop" 
+  install -Dm644 -t "${pkgdir}/usr/share/mime/packages" "${srcdir}/opt/Allegorithmic/Substance_Painter/resources/allegorithmic-x.allegorithmic.xml"
+  install -Dm644 -t "${pkgdir}/usr/share/icons" "${srcdir}/opt/Allegorithmic/Substance_Painter/resources/icons/painter-256x256.png"
+
+  mv "${pkgdir}/usr/share/icons/painter-256x256.png" "${pkgdir}/usr/share/icons/allegorithmic-Substance_Painter.png"
+  mv "${pkgdir}/usr/share/mime/packages/allegorithmic-x.allegorithmic.xml" "${pkgdir}/usr/share/mime/packages/allegorithmic-x.painter.xml"
+  mv "${srcdir}/opt" "${pkgdir}/opt"
+}

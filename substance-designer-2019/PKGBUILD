@@ -1,0 +1,29 @@
+# Maintainer: kwizatz <kwizatz at aeongames.com>
+
+pkgname=substance-designer-2019
+pkgver=2019.2.3
+pkgrel=1
+_build=2683
+pkgdesc="Node-based, non-destructive PBR material authoring tool."
+arch=('x86_64')
+url='https://www.allegorithmic.com/products/substance-designer'
+license=('custom')
+depends=('fontconfig' 'gcc-libs-multilib' 'glu' 'hicolor-icon-theme' 'libtiff4')
+options=('!strip') # PNG assets here should be left untouched!
+source=("https://download.allegorithmic.com/substance-designer/2019.x/Substance_Designer-${pkgver}-${_build}-linux-x64-standard-full.rpm")
+
+sha256sums=('42e86342f76330955acba8579c92ea62afb0c00e6e2009547d022c8c40db38ac')
+
+validpgpkeys=()
+
+package() {
+  install -Dm644 -t "${pkgdir}/usr/share/applications" "${srcdir}/opt/Allegorithmic/Substance_Designer/resources/allegorithmic-Substance_Designer.desktop" 
+  install -Dm644 -t "${pkgdir}/usr/share/mime/packages" "${srcdir}/opt/Allegorithmic/Substance_Designer/resources/allegorithmic-x.allegorithmic.xml"
+  install -Dm644 -t "${pkgdir}/usr/share/icons" "${srcdir}/opt/Allegorithmic/Substance_Designer/resources/icons/substance-256x256.png"
+  # Use System's FreeType2 library
+  rm -rf "${srcdir}/opt/Allegorithmic/Substance_Designer/libfreetype.so.6"
+
+  mv "${pkgdir}/usr/share/icons/substance-256x256.png" "${pkgdir}/usr/share/icons/allegorithmic-Substance_Designer.png"
+  mv "${pkgdir}/usr/share/mime/packages/allegorithmic-x.allegorithmic.xml" "${pkgdir}/usr/share/mime/packages/allegorithmic-x.designer.xml"
+  mv "${srcdir}/opt" "${pkgdir}/opt"
+}
