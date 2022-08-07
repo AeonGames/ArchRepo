@@ -1,0 +1,32 @@
+# Maintainer: Rodrigo Hernandez
+
+pkgname=rakarrack-aeongames
+pkgver=0.6.2
+pkgrel=1
+pkgdesc="Versatile guitar multi-effects processor"
+arch=('x86_64')
+license=('GPL')
+url="http://rakarrack.sourceforge.net"
+makedepends=("git" "sed" "make" "automake")
+depends=('alsa-utils' 'jack' 'fltk' 'libxpm')
+source=("bare-clones/build::git+https://github.com/Kwizatz/rakarrack.git#commit=dcd55be1ce7e5b5919b53e1615712b144fa4bf25")
+sha256sums=('SKIP')
+
+prepare() {
+  cd "$srcdir/build"
+  ./autogen.sh
+  sed -i 's/local\/\([^\x0]*\)/\1\x0\x0\x0\x0\x0\x0/g' data/Default.rkrb
+  sed -i 's/local\/\([^\x0]*\)/\1\x0\x0\x0\x0\x0\x0/g' data/Extra.rkrb
+  sed -i 's/local\/\([^\x0]*\)/\1\x0\x0\x0\x0\x0\x0/g' data/Extra1.rkrb
+}
+
+build() {
+  cd "$srcdir/build"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/build"
+  make DESTDIR="$pkgdir" install
+}
